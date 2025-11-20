@@ -1,35 +1,39 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from "react";
+import Card from "./components/Card";
+import { northernRealmsCards } from "./data/cards";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div
+      style={{
+        padding: "20px",
+        backgroundColor: "#1a1a1a",
+        minHeight: "100vh",
+        display: "flex",
+        gap: "20px",
+        flexWrap: "wrap",
+      }}
+    >
+      <h1 style={{ color: "white", width: "100%" }}>Gwent Cards Test</h1>
+
+      {/* Test with different cards */}
+      <Card
+        card={northernRealmsCards[0]}
+        onClick={(card) => console.log("Clicked:", card.name)}
+      />
+
+      <Card
+        card={northernRealmsCards[9]}
+        onClick={(card) => console.log("Clicked:", card.name)}
+      />
+
+      <Card
+        card={northernRealmsCards[20]}
+        onClick={(card) => console.log("Clicked:", card.name)}
+        isPlayable={false}
+      />
+    </div>
+  );
 }
 
-export default App
+export default App;
