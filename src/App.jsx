@@ -1,9 +1,14 @@
 import React from "react";
-import Hand from "./components/Hand";
-import { getAllCards } from "./data/cards";
+import Row from "./components/Row";
+import { northernRealmsCards } from "./data/cards";
 
 function App() {
-  const allCards = getAllCards(); // Get cards with duplicates
+  // Get some test cards
+  const testCards = [
+    northernRealmsCards[0], // Geralt (hero, 15 power)
+    northernRealmsCards[9], // Spy (5 power)
+    northernRealmsCards[20], // Regular unit
+  ];
 
   return (
     <div
@@ -13,24 +18,43 @@ function App() {
         minHeight: "100vh",
       }}
     >
-      <h1 style={{ color: "white", textAlign: "center" }}>Gwent - Hand Test</h1>
+      <h1 style={{ color: "white" }}>Gwent - Row Test</h1>
 
-      {/* Test with 10 cards */}
-      <Hand
-        cards={allCards.slice(0, 10)}
-        onCardClick={(card) => console.log("Played:", card.name)}
-        isPlayerTurn={true}
+      {/* Normal row */}
+      <Row
+        rowType="melee"
+        cards={testCards}
+        isPlayerRow={true}
+        hasHorn={false}
+        weatherActive={false}
       />
 
-      {/* Test with disabled hand */}
-      <div style={{ marginTop: "40px" }}>
-        <h2 style={{ color: "white" }}>Opponent's Turn (cards disabled):</h2>
-        <Hand
-          cards={allCards.slice(10, 15)}
-          onCardClick={(card) => console.log("Cant play:", card.name)}
-          isPlayerTurn={false}
-        />
-      </div>
+      {/* Row with horn */}
+      <Row
+        rowType="ranged"
+        cards={testCards}
+        isPlayerRow={true}
+        hasHorn={true}
+        weatherActive={false}
+      />
+
+      {/* Row with weather (should reduce non-heroes to 1) */}
+      <Row
+        rowType="siege"
+        cards={testCards}
+        isPlayerRow={false}
+        hasHorn={false}
+        weatherActive={true}
+      />
+
+      {/* Empty row */}
+      <Row
+        rowType="melee"
+        cards={[]}
+        isPlayerRow={false}
+        hasHorn={false}
+        weatherActive={false}
+      />
     </div>
   );
 }
