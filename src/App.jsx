@@ -1,37 +1,36 @@
 import React from "react";
-import Card from "./components/Card";
-import { northernRealmsCards } from "./data/cards";
+import Hand from "./components/Hand";
+import { getAllCards } from "./data/cards";
 
 function App() {
+  const allCards = getAllCards(); // Get cards with duplicates
+
   return (
     <div
       style={{
         padding: "20px",
         backgroundColor: "#1a1a1a",
         minHeight: "100vh",
-        display: "flex",
-        gap: "20px",
-        flexWrap: "wrap",
       }}
     >
-      <h1 style={{ color: "white", width: "100%" }}>Gwent Cards Test</h1>
+      <h1 style={{ color: "white", textAlign: "center" }}>Gwent - Hand Test</h1>
 
-      {/* Test with different cards */}
-      <Card
-        card={northernRealmsCards[0]}
-        onClick={(card) => console.log("Clicked:", card.name)}
+      {/* Test with 10 cards */}
+      <Hand
+        cards={allCards.slice(0, 10)}
+        onCardClick={(card) => console.log("Played:", card.name)}
+        isPlayerTurn={true}
       />
 
-      <Card
-        card={northernRealmsCards[9]}
-        onClick={(card) => console.log("Clicked:", card.name)}
-      />
-
-      <Card
-        card={northernRealmsCards[20]}
-        onClick={(card) => console.log("Clicked:", card.name)}
-        isPlayable={false}
-      />
+      {/* Test with disabled hand */}
+      <div style={{ marginTop: "40px" }}>
+        <h2 style={{ color: "white" }}>Opponent's Turn (cards disabled):</h2>
+        <Hand
+          cards={allCards.slice(10, 15)}
+          onCardClick={(card) => console.log("Cant play:", card.name)}
+          isPlayerTurn={false}
+        />
+      </div>
     </div>
   );
 }
