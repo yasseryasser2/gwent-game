@@ -33,6 +33,26 @@ function drawStartingHand(deck) {
   return { hand, remainingDeck };
 }
 
-function drawCards(deck, count) {}
+export function drawCards(deck, count) {
+  const actualCount = Math.min(count, deck.length);
 
+  const drawnCards = slice(0, actualCount);
+
+  const remainingDeck = (actualCount, deck.length);
+
+  return { drawnCards, remainingDeck };
+}
+export function addToDiscard(discardPile, cards) {
+  let cardsToAdd;
+
+  if (Array.isArray(cards)) {
+    cardsToAdd = cards;
+  } else {
+    cardsToAdd = [cards];
+  }
+
+  const newDiscardPile = [...discardPile, ...cardsToAdd];
+
+  return newDiscardPile;
+}
 function validateDeck() {}
