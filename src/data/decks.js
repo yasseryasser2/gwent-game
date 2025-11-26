@@ -1,3 +1,5 @@
+import { CARD_TYPES } from "./constants";
+
 export function createDeck(cardDefinitions) {
   const deck = [];
 
@@ -17,16 +19,16 @@ export function createDeck(cardDefinitions) {
 }
 
 export function shuffleDeck(deck) {
-  let deckClone = [...deck];
+  const deckClone = [...deck];
 
-  for (let i = deckClone.length - 1; i >= 0; i--) {
+  for (let i = deckClone.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [deckClone[i], deckClone[j]] = [deckClone[j], deckClone[i]];
   }
   return deckClone;
 }
 
-function drawStartingHand(deck) {
+export function drawStartingHand(deck) {
   const hand = deck.slice(0, 10);
   const remainingDeck = deck.slice(10);
 
@@ -36,23 +38,29 @@ function drawStartingHand(deck) {
 export function drawCards(deck, count) {
   const actualCount = Math.min(count, deck.length);
 
-  const drawnCards = slice(0, actualCount);
-
-  const remainingDeck = (actualCount, deck.length);
+  const drawnCards = deck.slice(0, actualCount);
+  const remainingDeck = deck.slice(actualCount);
 
   return { drawnCards, remainingDeck };
 }
+
 export function addToDiscard(discardPile, cards) {
-  let cardsToAdd;
-
-  if (Array.isArray(cards)) {
-    cardsToAdd = cards;
-  } else {
-    cardsToAdd = [cards];
-  }
-
+  const cardsToAdd = Array.isArray(cards) ? cards : [cards];
   const newDiscardPile = [...discardPile, ...cardsToAdd];
 
   return newDiscardPile;
 }
-function validateDeck() {}
+
+export function getDiscardPile(discardPile, filter = null) {
+  if (!filter) {
+    return discardPile;
+  }
+
+  if (filter === "unit") {
+    return discardPile.filter(
+      (card) => card.type === CARD_TYPES.UNIT && !card.hero
+    );
+  }
+
+  return discardPile;
+}
