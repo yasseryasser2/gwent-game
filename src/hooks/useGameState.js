@@ -1,13 +1,14 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   createInitialState,
   calculateScore,
   resetRoundState,
 } from "../game/gameState";
-import { ROWS } from "../data/constants";
+import { decideOpponentAction } from "../game/aiLogic";
 
 export function useGameState() {
   const [gameState, setGameState] = useState(() => createInitialState());
+  const isProcessingAI = useRef(false);
 
   const determineRoundWinner = (state) => {
     const playerScore = state.player.score;
@@ -27,7 +28,6 @@ export function useGameState() {
 
     let updatedState = { ...state };
 
-    // Award round win
     if (roundWinner === "player") {
       updatedState = {
         ...updatedState,
@@ -50,7 +50,6 @@ export function useGameState() {
       };
     }
 
-    // Check if game is over (someone won 2 rounds)
     if (updatedState.player.roundsWon === 2) {
       return {
         ...updatedState,
@@ -67,7 +66,6 @@ export function useGameState() {
       };
     }
 
-    // Game continues - reset for next round
     updatedState = {
       ...updatedState,
       gamePhase: "round_end",
@@ -79,7 +77,6 @@ export function useGameState() {
 
   const playCard = useCallback((card, targetRow) => {
     setGameState((currentState) => {
-      // Validation
       if (currentState.currentTurn !== "player") {
         console.log("Not your turn!");
         return currentState;
@@ -103,7 +100,6 @@ export function useGameState() {
         return currentState;
       }
 
-      // Remove from hand, add to board
       const newHand = currentState.player.hand.filter(
         (c) => c.instanceId !== card.instanceId
       );
@@ -122,7 +118,6 @@ export function useGameState() {
         },
       };
 
-      // Recalculate scores
       const playerScore = calculateScore(
         updatedState.player.rows,
         updatedState.weatherEffects,
@@ -147,11 +142,12 @@ export function useGameState() {
         },
       };
 
-      // Switch turn
-      updatedState = {
-        ...updatedState,
-        currentTurn: "opponent",
-      };
+      if (!updatedState.opponent.hasPassed) {
+        updatedState = {
+          ...updatedState,
+          currentTurn: "opponent",
+        };
+      }
 
       return updatedState;
     });
@@ -191,18 +187,28 @@ export function useGameState() {
   }, [handleRoundEnd]);
 
   const playOpponentTurn = useCallback(() => {
+    if (isProcessingAI.current) {
+      console.log("[GUARD] AI already processing, skipping turn");
+      return;
+    }
+
+    isProcessingAI.current = true;
+
     setGameState((currentState) => {
-      if (currentState.currentTurn !== "opponent") {
+      if (
+        currentState.currentTurn !== "opponent" ||
+        currentState.gamePhase !== "playing"
+      ) {
+        isProcessingAI.current = false;
         return currentState;
       }
 
-      if (currentState.opponent.hasPassed) {
-        return currentState;
-      }
+      const aiDecision = decideOpponentAction(currentState);
 
-      const opponentHand = currentState.opponent.hand;
+      if (aiDecision.action === "pass") {
+        console.log("AI Decision: PASS");
+        isProcessingAI.current = false;
 
-      if (opponentHand.length === 0) {
         let updatedState = {
           ...currentState,
           opponent: {
@@ -215,104 +221,204 @@ export function useGameState() {
           return handleRoundEnd(updatedState);
         }
 
-        updatedState = {
+        return {
           ...updatedState,
           currentTurn: "player",
         };
-
-        return updatedState;
       }
 
-      const isAhead = currentState.opponent.score > currentState.player.score;
-      const shouldPass = isAhead && Math.random() < 0.4;
+      if (aiDecision.action === "play") {
+        console.log(
+          `AI Decision: PLAY ${aiDecision.card.name} on ${aiDecision.targetRow}`
+        );
+        isProcessingAI.current = false;
 
-      if (shouldPass) {
+        const newHand = currentState.opponent.hand.filter(
+          (c) => c.instanceId !== aiDecision.card.instanceId
+        );
+
+        const newRows = {
+          ...currentState.opponent.rows,
+          [aiDecision.targetRow]: [
+            ...currentState.opponent.rows[aiDecision.targetRow],
+            aiDecision.card,
+          ],
+        };
+
         let updatedState = {
           ...currentState,
           opponent: {
             ...currentState.opponent,
-            hasPassed: true,
+            hand: newHand,
+            rows: newRows,
           },
         };
 
-        if (updatedState.player.hasPassed) {
-          return handleRoundEnd(updatedState);
-        }
+        const playerScore = calculateScore(
+          updatedState.player.rows,
+          updatedState.weatherEffects,
+          updatedState.hornEffects.player
+        );
+
+        const opponentScore = calculateScore(
+          updatedState.opponent.rows,
+          updatedState.weatherEffects,
+          updatedState.hornEffects.opponent
+        );
 
         updatedState = {
           ...updatedState,
+          player: {
+            ...updatedState.player,
+            score: playerScore,
+          },
+          opponent: {
+            ...updatedState.opponent,
+            score: opponentScore,
+          },
+        };
+
+        return {
+          ...updatedState,
           currentTurn: "player",
         };
+      }
+
+      if (aiDecision.action === "play_and_continue") {
+        console.log(`AI Decision: PLAY ${aiDecision.card.name} and CONTINUE`);
+
+        const newHand = currentState.opponent.hand.filter(
+          (c) => c.instanceId !== aiDecision.card.instanceId
+        );
+
+        const newRows = {
+          ...currentState.opponent.rows,
+          [aiDecision.targetRow]: [
+            ...currentState.opponent.rows[aiDecision.targetRow],
+            aiDecision.card,
+          ],
+        };
+
+        let updatedState = {
+          ...currentState,
+          opponent: {
+            ...currentState.opponent,
+            hand: newHand,
+            rows: newRows,
+          },
+        };
+
+        const playerScore = calculateScore(
+          updatedState.player.rows,
+          updatedState.weatherEffects,
+          updatedState.hornEffects.player
+        );
+
+        const opponentScore = calculateScore(
+          updatedState.opponent.rows,
+          updatedState.weatherEffects,
+          updatedState.hornEffects.opponent
+        );
+
+        updatedState = {
+          ...updatedState,
+          player: {
+            ...updatedState.player,
+            score: playerScore,
+          },
+          opponent: {
+            ...updatedState.opponent,
+            score: opponentScore,
+          },
+        };
+
+        if (updatedState.opponent.score > updatedState.player.score) {
+          console.log("AI: Now winning after card - passing!");
+          isProcessingAI.current = false;
+
+          updatedState = {
+            ...updatedState,
+            opponent: {
+              ...updatedState.opponent,
+              hasPassed: true,
+            },
+          };
+
+          return handleRoundEnd(updatedState);
+        }
+
+        console.log("AI: Still losing, will play another card");
+
+        setTimeout(() => {
+          isProcessingAI.current = false;
+        }, 50);
 
         return updatedState;
       }
 
-      const randomIndex = Math.floor(Math.random() * opponentHand.length);
-      const cardToPlay = opponentHand[randomIndex];
+      if (aiDecision.action === "play_and_pass") {
+        console.log(`AI Decision: PLAY ${aiDecision.card.name} then PASS`);
+        isProcessingAI.current = false;
 
-      let targetRow;
-      if (cardToPlay.row) {
-        targetRow = cardToPlay.row;
-      } else {
-        const rows = [ROWS.MELEE, ROWS.RANGED, ROWS.SIEGE];
-        targetRow = rows[Math.floor(Math.random() * rows.length)];
+        const newHand = currentState.opponent.hand.filter(
+          (c) => c.instanceId !== aiDecision.card.instanceId
+        );
+
+        const newRows = {
+          ...currentState.opponent.rows,
+          [aiDecision.targetRow]: [
+            ...currentState.opponent.rows[aiDecision.targetRow],
+            aiDecision.card,
+          ],
+        };
+
+        let updatedState = {
+          ...currentState,
+          opponent: {
+            ...currentState.opponent,
+            hand: newHand,
+            rows: newRows,
+            hasPassed: true,
+          },
+        };
+
+        const playerScore = calculateScore(
+          updatedState.player.rows,
+          updatedState.weatherEffects,
+          updatedState.hornEffects.player
+        );
+
+        const opponentScore = calculateScore(
+          updatedState.opponent.rows,
+          updatedState.weatherEffects,
+          updatedState.hornEffects.opponent
+        );
+
+        updatedState = {
+          ...updatedState,
+          player: {
+            ...updatedState.player,
+            score: playerScore,
+          },
+          opponent: {
+            ...updatedState.opponent,
+            score: opponentScore,
+          },
+        };
+
+        return handleRoundEnd(updatedState);
       }
 
-      const newHand = opponentHand.filter(
-        (c) => c.instanceId !== cardToPlay.instanceId
-      );
-
-      const newRows = {
-        ...currentState.opponent.rows,
-        [targetRow]: [...currentState.opponent.rows[targetRow], cardToPlay],
-      };
-
-      let updatedState = {
-        ...currentState,
-        opponent: {
-          ...currentState.opponent,
-          hand: newHand,
-          rows: newRows,
-        },
-      };
-
-      const playerScore = calculateScore(
-        updatedState.player.rows,
-        updatedState.weatherEffects,
-        updatedState.hornEffects.player
-      );
-
-      const opponentScore = calculateScore(
-        updatedState.opponent.rows,
-        updatedState.weatherEffects,
-        updatedState.hornEffects.opponent
-      );
-
-      updatedState = {
-        ...updatedState,
-        player: {
-          ...updatedState.player,
-          score: playerScore,
-        },
-        opponent: {
-          ...updatedState.opponent,
-          score: opponentScore,
-        },
-      };
-
-      updatedState = {
-        ...updatedState,
-        currentTurn: "player",
-      };
-
-      return updatedState;
+      isProcessingAI.current = false;
+      return currentState;
     });
   }, [handleRoundEnd]);
 
   useEffect(() => {
     if (
       gameState.currentTurn === "opponent" &&
-      gameState.gamePhase === "playing"
+      gameState.gamePhase === "playing" &&
+      !isProcessingAI.current
     ) {
       const timer = setTimeout(() => {
         playOpponentTurn();
@@ -320,7 +426,12 @@ export function useGameState() {
 
       return () => clearTimeout(timer);
     }
-  }, [gameState.currentTurn, gameState.gamePhase, playOpponentTurn]);
+  }, [
+    gameState.currentTurn,
+    gameState.gamePhase,
+    gameState.opponent.hand.length,
+    playOpponentTurn,
+  ]);
 
   return {
     gameState,
