@@ -1,24 +1,19 @@
-import { drawCards, drawCards } from "../data/decks";
+import { drawCards } from "../data/decks";
 import { ABILITIES, CARD_TYPES } from "../data/constants";
 
 export const handleSpyAbility = (gameState, card, player, targetRow) => {
-  let opponent;
-
-  if (player === "player") {
-    opponent = "opponent";
-  } else {
-    opponent = "player";
-  }
+  const opponent = player === "player" ? "opponent" : "player";
 
   const newOpponentRows = {
     ...gameState[opponent].rows,
-    [targetRow]: [gameState[opponent].rows[targetRow], card],
+    [targetRow]: [...gameState[opponent].rows[targetRow], card],
   };
 
-  let yourDeck = gameState[player].deck;
-  const { drawCards, remainingDeck } = drawCards(yourDeck, 2);
+  const yourDeck = gameState[player].deck;
+  const { drawnCards, remainingDeck } = drawCards(yourDeck, 2);
 
-  const newHand = [...gameState[player].hand, ...drawCards];
+  const newHand = [...gameState[player].hand, ...drawnCards];
+
   return {
     ...gameState,
     [player]: {
@@ -38,19 +33,20 @@ export const handleMusterAbility = (gameState, card, player, targetRow) => {
     (c) => c.name === card.name && c.instanceId !== card.instanceId
   );
 
-  const matchingInDeck = gameStatep[player].deck.filter(
+  const matchingInDeck = gameState[player].deck.filter(
     (c) => c.name === card.name && c.instanceId !== card.instanceId
   );
 
   const allMusterCards = [card, ...matchingInHand, ...matchingInDeck];
 
-  const newHand = gameStatep[player].matchingInHand.filter(
-    (c) => c.name === card.name && c.instanceId !== card.instanceId
+  const newHand = gameState[player].hand.filter(
+    (c) => !matchingInHand.some((match) => match.instanceId === c.instanceId)
   );
 
-  const newDeck = gameStatep[player].matchingInDeck.filter(
-    (c) => c.name === card.name && c.instanceId !== card.instanceId
+  const newDeck = gameState[player].deck.filter(
+    (c) => !matchingInDeck.some((match) => match.instanceId === c.instanceId)
   );
+
   const newRows = {
     ...gameState[player].rows,
     [targetRow]: [...gameState[player].rows[targetRow], ...allMusterCards],
@@ -70,6 +66,7 @@ export const handleMusterAbility = (gameState, card, player, targetRow) => {
 export const handleTightBondAbility = (gameState, card, player, targetRow) => {
   return gameState;
 };
+
 export const handleMoraleBoostAbility = (
   gameState,
   card,
@@ -78,9 +75,11 @@ export const handleMoraleBoostAbility = (
 ) => {
   return gameState;
 };
+
 export const handleMedicAbility = (gameState, card, player) => {
   return gameState;
 };
+
 export const applyCardAbility = (gameState, card, player, targetRow) => {
   if (!card.ability) {
     return gameState;
