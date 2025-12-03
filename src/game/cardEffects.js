@@ -10,7 +10,7 @@ export const handleSpyAbility = (gameState, card, player, targetRow) => {
     opponent = "player";
   }
 
-  const opponentRows = {
+  const newOpponentRows = {
     ...gameState[opponent].rows,
     [targetRow]: [gameState[opponent].rows[targetRow], card],
   };
@@ -29,6 +29,40 @@ export const handleSpyAbility = (gameState, card, player, targetRow) => {
     [opponent]: {
       ...gameState[opponent],
       rows: newOpponentRows,
+    },
+  };
+};
+
+export const handleMusterAbility = (gameState, card, player, targetRow) => {
+  const matchingInHand = gameState[player].hand.filter(
+    (c) => c.name === card.name && c.instanceId !== card.instanceId
+  );
+
+  const matchingInDeck = gameStatep[player].deck.filter(
+    (c) => c.name === card.name && c.instanceId !== card.instanceId
+  );
+
+  const allMusterCards = [card, ...matchingInHand, ...matchingInDeck];
+
+  const newHand = gameStatep[player].matchingInHand.filter(
+    (c) => c.name === card.name && c.instanceId !== card.instanceId
+  );
+
+  const newDeck = gameStatep[player].matchingInDeck.filter(
+    (c) => c.name === card.name && c.instanceId !== card.instanceId
+  );
+  const newRows = {
+    ...gameState[player].rows,
+    [targetRow]: [...gameState[player].rows[targetRow], ...allMusterCards],
+  };
+
+  return {
+    ...gameState,
+    [player]: {
+      ...gameState[player],
+      hand: newHand,
+      deck: newDeck,
+      rows: newRows,
     },
   };
 };
