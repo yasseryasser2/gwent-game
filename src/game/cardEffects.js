@@ -66,3 +66,44 @@ export const handleMusterAbility = (gameState, card, player, targetRow) => {
     },
   };
 };
+
+export const handleTightBondAbility = (gameState, card, player, targetRow) => {
+  return gameState;
+};
+export const handleMoraleBoostAbility = (
+  gameState,
+  card,
+  player,
+  targetRow
+) => {
+  return gameState;
+};
+export const handleMedicAbility = (gameState, card, player) => {
+  return gameState;
+};
+export const applyCardAbility = (gameState, card, player, targetRow) => {
+  if (!card.ability) {
+    return gameState;
+  }
+
+  switch (card.ability) {
+    case ABILITIES.SPY:
+      return handleSpyAbility(gameState, card, player, targetRow);
+
+    case ABILITIES.MUSTER:
+      return handleMusterAbility(gameState, card, player, targetRow);
+
+    case ABILITIES.TIGHT_BOND:
+      return handleTightBondAbility(gameState, card, player, targetRow);
+
+    case ABILITIES.MORALE_BOOST:
+      return handleMoraleBoostAbility(gameState, card, player, targetRow);
+
+    case ABILITIES.MEDIC:
+      return handleMedicAbility(gameState, card, player);
+
+    default:
+      console.log(`Unknown ability: ${card.ability}`);
+      return gameState;
+  }
+};
