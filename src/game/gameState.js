@@ -5,14 +5,20 @@ import {
   drawCards,
 } from "../data/decks";
 import { northernRealmsCards } from "../data/cards";
+import { CARD_TYPES } from "../data/constants";
 
 export const createInitialState = () => {
-  const playerFullDeck = createDeck(northernRealmsCards);
+  // FILTER: Only use unit and hero cards (no special/weather)
+  const playableCards = northernRealmsCards.filter(
+    (card) => card.type === CARD_TYPES.UNIT || card.type === CARD_TYPES.HERO
+  );
+
+  const playerFullDeck = createDeck(playableCards);
   const playerShuffled = shuffleDeck(playerFullDeck);
   const { hand: playerHand, remainingDeck: playerDeck } =
     drawStartingHand(playerShuffled);
 
-  const opponentFullDeck = createDeck(northernRealmsCards);
+  const opponentFullDeck = createDeck(playableCards);
   const opponentShuffled = shuffleDeck(opponentFullDeck);
   const { hand: opponentHand, remainingDeck: opponentDeck } =
     drawStartingHand(opponentShuffled);
