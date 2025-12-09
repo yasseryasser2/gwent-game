@@ -29,18 +29,35 @@ export const handleSpyAbility = (gameState, card, player, targetRow) => {
 };
 
 export const handleMusterAbility = (gameState, card, player, targetRow) => {
+  console.log(`[MUSTER] Playing ${card.name} (${card.instanceId})`);
+  console.log(
+    `[MUSTER] Hand before:`,
+    gameState[player].hand.map((c) => c.name)
+  );
+
   const matchingInHand = gameState[player].hand.filter(
     (c) => c.name === card.name && c.instanceId !== card.instanceId
   );
+
+  console.log(`[MUSTER] Found ${matchingInHand.length} matching cards in hand`);
 
   const matchingInDeck = gameState[player].deck.filter(
     (c) => c.name === card.name && c.instanceId !== card.instanceId
   );
 
+  console.log(`[MUSTER] Found ${matchingInDeck.length} matching cards in deck`);
+
   const allMusterCards = [card, ...matchingInHand, ...matchingInDeck];
+
+  console.log(`[MUSTER] Total cards to play: ${allMusterCards.length}`);
 
   const newHand = gameState[player].hand.filter(
     (c) => !matchingInHand.some((match) => match.instanceId === c.instanceId)
+  );
+
+  console.log(
+    `[MUSTER] Hand after:`,
+    newHand.map((c) => c.name)
   );
 
   const newDeck = gameState[player].deck.filter(
@@ -64,7 +81,18 @@ export const handleMusterAbility = (gameState, card, player, targetRow) => {
 };
 
 export const handleTightBondAbility = (gameState, card, player, targetRow) => {
-  return gameState;
+  const newRows = {
+    ...gameState[player].rows,
+    [targetRow]: [...gameState[player].rows[targetRow], card],
+  };
+
+  return {
+    ...gameState,
+    [player]: {
+      ...gameState[player],
+      rows: newRows,
+    },
+  };
 };
 
 export const handleMoraleBoostAbility = (
@@ -73,11 +101,33 @@ export const handleMoraleBoostAbility = (
   player,
   targetRow
 ) => {
-  return gameState;
+  const newRows = {
+    ...gameState[player].rows,
+    [targetRow]: [...gameState[player].rows[targetRow], card],
+  };
+
+  return {
+    ...gameState,
+    [player]: {
+      ...gameState[player],
+      rows: newRows,
+    },
+  };
 };
 
-export const handleMedicAbility = (gameState, card, player) => {
-  return gameState;
+export const handleMedicAbility = (gameState, card, player, targetRow) => {
+  const newRows = {
+    ...gameState[player].rows,
+    [targetRow]: [...gameState[player].rows[targetRow], card],
+  };
+
+  return {
+    ...gameState,
+    [player]: {
+      ...gameState[player],
+      rows: newRows,
+    },
+  };
 };
 
 export const applyCardAbility = (gameState, card, player, targetRow) => {
@@ -99,7 +149,7 @@ export const applyCardAbility = (gameState, card, player, targetRow) => {
       return handleMoraleBoostAbility(gameState, card, player, targetRow);
 
     case ABILITIES.MEDIC:
-      return handleMedicAbility(gameState, card, player);
+      return handleMedicAbility(gameState, card, player, targetRow);
 
     default:
       console.log(`Unknown ability: ${card.ability}`);
