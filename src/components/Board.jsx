@@ -13,32 +13,53 @@ export default function Board({
   return (
     <div
       style={{
-        backgroundColor: "#0d1117",
-        padding: "20px",
-        border: "3px solid #8b7355",
-        borderRadius: "10px",
-        maxWidth: "1200px",
-        margin: "0 auto",
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        background:
+          "linear-gradient(180deg, rgba(26, 26, 46, 0.95) 0%, rgba(15, 12, 41, 0.95) 100%)",
+        border: "3px solid rgba(139, 115, 85, 0.6)",
+        borderRadius: "12px",
+        padding: "15px",
+        boxShadow:
+          "0 10px 40px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(0, 0, 0, 0.3)",
+        overflow: "visible",
       }}
     >
-      {/* Opponent Score Display */}
+      {}
       <div
         style={{
-          fontSize: "24px",
-          fontWeight: "bold",
-          color: "#ff6b6b",
           textAlign: "center",
-          padding: "15px",
-          backgroundColor: "rgba(0,0,0,0.5)",
+          padding: "8px",
+          background: "rgba(255, 107, 107, 0.15)",
           borderRadius: "8px",
           marginBottom: "10px",
+          border: "2px solid rgba(255, 107, 107, 0.3)",
         }}
       >
-        OPPONENT: {opponentScore}
+        <div
+          style={{
+            fontSize: "14px",
+            color: "#ff6b6b",
+            fontWeight: "bold",
+            letterSpacing: "2px",
+          }}
+        >
+          OPPONENT: {opponentScore}
+        </div>
       </div>
 
-      {/* Opponent's Rows (siege, ranged, melee - top to bottom) */}
-      <div className="opponent-section">
+      {}
+      <div
+        style={{
+          flex: "1",
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          marginBottom: "15px",
+        }}
+      >
         <Row
           rowType={ROWS.SIEGE}
           cards={opponentRows.siege}
@@ -62,25 +83,42 @@ export default function Board({
         />
       </div>
 
-      {/* Middle Divider */}
+      {}
       <div
         style={{
           textAlign: "center",
-          fontSize: "20px",
-          fontWeight: "bold",
-          color: "#ffcc00",
-          padding: "20px",
-          borderTop: "2px solid #666",
-          borderBottom: "2px solid #666",
-          background: "rgba(139, 115, 85, 0.2)",
+          padding: "12px",
+          background:
+            "linear-gradient(90deg, rgba(139, 115, 85, 0.3) 0%, rgba(139, 115, 85, 0.6) 50%, rgba(139, 115, 85, 0.3) 100%)",
+          borderTop: "2px solid rgba(255, 215, 0, 0.4)",
+          borderBottom: "2px solid rgba(255, 215, 0, 0.4)",
           margin: "10px 0",
+          boxShadow: "0 0 20px rgba(255, 215, 0, 0.2)",
         }}
       >
-        ⚔️ BATTLEFIELD ⚔️
+        <div
+          style={{
+            fontSize: "16px",
+            fontWeight: "bold",
+            color: "#ffd700",
+            letterSpacing: "3px",
+            textShadow: "0 0 10px rgba(255, 215, 0, 0.8)",
+          }}
+        >
+          ⚔️ BATTLEFIELD ⚔️
+        </div>
       </div>
 
-      {/* Player's Rows (melee, ranged, siege - top to bottom) */}
-      <div className="player-section">
+      {}
+      <div
+        style={{
+          flex: "1",
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          marginTop: "15px",
+        }}
+      >
         <Row
           rowType={ROWS.MELEE}
           cards={playerRows.melee}
@@ -104,20 +142,27 @@ export default function Board({
         />
       </div>
 
-      {/* Player Score Display */}
+      {}
       <div
         style={{
-          fontSize: "24px",
-          fontWeight: "bold",
-          color: "#51cf66",
           textAlign: "center",
-          padding: "15px",
-          backgroundColor: "rgba(0,0,0,0.5)",
+          padding: "8px",
+          background: "rgba(81, 207, 102, 0.15)",
           borderRadius: "8px",
           marginTop: "10px",
+          border: "2px solid rgba(81, 207, 102, 0.3)",
         }}
       >
-        PLAYER: {playerScore}
+        <div
+          style={{
+            fontSize: "14px",
+            color: "#51cf66",
+            fontWeight: "bold",
+            letterSpacing: "2px",
+          }}
+        >
+          PLAYER: {playerScore}
+        </div>
       </div>
     </div>
   );
