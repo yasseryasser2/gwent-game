@@ -2,7 +2,8 @@
 
 A React-based recreation of the Gwent card game from The Witcher 3: Wild Hunt. Challenge an AI opponent in strategic card battles across three combat rows.
 
-![Gwent Game Screenshot](./showcase.webp)
+![image](https://github.com/user-attachments/assets/93cf2f6d-f3b5-4aa2-b5b8-ca2e27749d3f)
+
 
 ## 🎮 About
 
