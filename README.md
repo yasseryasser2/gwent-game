@@ -1,16 +1,30 @@
-# React + Vite
+# ⚔️ Gwent Card Game
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React-based recreation of the Gwent card game from The Witcher 3: Wild Hunt. Challenge an AI opponent in strategic card battles across three combat rows.
 
-Currently, two official plugins are available:
+![Gwent Game Screenshot](./showcase.webp)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🎮 About
 
-## React Compiler
+Gwent is a turn-based strategy card game where you aim to win 2 out of 3 rounds by outscoring your opponent. Deploy units across Melee, Ranged, and Siege rows, use special abilities, and manage your cards wisely to claim victory.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ✨ Features
 
-## Expanding the ESLint configuration
+- **Three-row combat system** with Melee, Ranged, and Siege units
+- **Hero cards** immune to weather and special effects
+- **Special abilities** including Medic, Morale Boost, Spy, and Tight Bond
+- **Weather effects** that impact entire rows
+- **Strategic passing** to conserve cards for later rounds
+- **AI opponent** with varied tactics and deck composition
+- **Real-time scoring** with visual feedback and animations
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🎲 How to Play
+
+1. **Click cards** in your hand to play them to the board
+2. **Pass** when you want to end your turn for the round
+3. **Win rounds** by having a higher score when both players pass
+4. **Win the game** by winning 2 out of 3 rounds
+
+## 📝 Note
+
+This is an unofficial fan project for educational purposes. Gwent and The Witcher are trademarks of CD PROJEKT S.A.
