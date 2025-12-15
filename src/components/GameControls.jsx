@@ -1,5 +1,18 @@
 import React from "react";
 
+/**
+ * GameControls component
+ *
+ * Renders turn status information, a pass button, and the current game phase.
+ * Handles enabling/disabling the pass action based on game state.
+ *
+ * @param {Object} props
+ * @param {boolean} props.isPlayerTurn - Whether it is currently the player's turn
+ * @param {Function} props.onPass - Callback invoked when the player chooses to pass
+ * @param {boolean} props.canPass - Whether passing is allowed in the current state
+ * @param {string} props.gamePhase - Current phase of the game
+ * @param {string} props.turnMessage - Informational message describing the turn state
+ */
 export default function GameControls({
   isPlayerTurn,
   onPass,
@@ -7,16 +20,31 @@ export default function GameControls({
   gamePhase,
   turnMessage,
 }) {
+  /**
+   * Handles click events for the pass button.
+   * Invokes the onPass callback if the button is not disabled.
+   */
   function handlePassClick() {
     if (!isButtonDisabled()) {
       onPass();
     }
   }
 
+  /**
+   * Determines whether the pass button should be disabled.
+   *
+   * @returns {boolean} True if the button should be disabled
+   */
   function isButtonDisabled() {
     return !isPlayerTurn || !canPass;
   }
 
+  /**
+   * Determines the text displayed on the pass button
+   * based on the current game and turn state.
+   *
+   * @returns {string} Button label text
+   */
   function getButtonText() {
     if (isButtonDisabled()) {
       if (!isPlayerTurn) {
@@ -44,7 +72,6 @@ export default function GameControls({
         margin: "20px auto",
       }}
     >
-      {/* SECTION 1: Turn Indicator */}
       <div
         style={{
           textAlign: "center",
@@ -77,7 +104,6 @@ export default function GameControls({
         </div>
       </div>
 
-      {/* SECTION 2: Pass Button */}
       <button
         onClick={handlePassClick}
         disabled={isButtonDisabled()}
@@ -109,7 +135,6 @@ export default function GameControls({
         {getButtonText()}
       </button>
 
-      {/* SECTION 3: Game Phase Indicator */}
       <div
         style={{
           fontSize: "14px",

@@ -1,7 +1,21 @@
 import React from "react";
 import Card from "./Card";
 
+/**
+ * Hand component
+ *
+ * Displays the player's current hand of cards. Shows a placeholder message
+ * when the hand is empty and renders individual Card components otherwise.
+ *
+ * @param {Object} props
+ * @param {Array} props.cards - Array of card objects currently in the hand
+ * @param {Function} props.onCardClick - Callback invoked when a card is clicked
+ * @param {boolean} props.isPlayerTurn - Whether it is currently the player's turn
+ */
 export default function Hand({ cards, onCardClick, isPlayerTurn }) {
+  /**
+   * Render a fallback message when there are no cards in hand.
+   */
   if (cards.length === 0) {
     return (
       <div
@@ -26,7 +40,6 @@ export default function Hand({ cards, onCardClick, isPlayerTurn }) {
         border: "2px solid #444",
       }}
     >
-      {/* Card count */}
       <h2
         style={{
           color: "white",
@@ -37,7 +50,6 @@ export default function Hand({ cards, onCardClick, isPlayerTurn }) {
         Cards in hand: {cards.length}
       </h2>
 
-      {/* Cards container */}
       <div
         style={{
           display: "flex",
