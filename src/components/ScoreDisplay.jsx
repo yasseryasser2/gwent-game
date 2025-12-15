@@ -1,5 +1,18 @@
 import React from "react";
 
+/**
+ * ScoreDisplay component
+ *
+ * Displays the current round information, player and opponent scores,
+ * and visual indicators for rounds won by each side.
+ *
+ * @param {Object} props
+ * @param {number} props.playerScore - Current score of the player
+ * @param {number} props.opponentScore - Current score of the opponent
+ * @param {number} props.playerRoundsWon - Number of rounds won by the player
+ * @param {number} props.opponentRoundsWon - Number of rounds won by the opponent
+ * @param {number} props.currentRound - The current round number
+ */
 export default function ScoreDisplay({
   playerScore,
   opponentScore,
@@ -7,6 +20,13 @@ export default function ScoreDisplay({
   opponentRoundsWon,
   currentRound,
 }) {
+  /**
+   * Renders round indicators based on how many rounds have been won.
+   *
+   * @param {number} roundsWon - Number of rounds won
+   * @param {boolean} isPlayer - Whether the indicators are for the player
+   * @returns {JSX.Element[]} Array of span elements representing round status
+   */
   function renderRoundGems(roundsWon, isPlayer) {
     const gems = [];
     const filledGem = isPlayer ? "🟢" : "🔴";
@@ -34,7 +54,6 @@ export default function ScoreDisplay({
         margin: "0 auto 20px auto",
       }}
     >
-      {/* Round indicator */}
       <div
         style={{
           textAlign: "center",
@@ -47,7 +66,6 @@ export default function ScoreDisplay({
         ROUND {currentRound} OF 3
       </div>
 
-      {/* Opponent section */}
       <div
         style={{
           display: "flex",
@@ -63,7 +81,6 @@ export default function ScoreDisplay({
         <div>{renderRoundGems(opponentRoundsWon, false)}</div>
       </div>
 
-      {/* Divider */}
       <div
         style={{
           height: "2px",
@@ -72,7 +89,6 @@ export default function ScoreDisplay({
         }}
       ></div>
 
-      {/* Player section */}
       <div
         style={{
           display: "flex",

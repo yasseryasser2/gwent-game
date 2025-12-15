@@ -5,6 +5,7 @@ import {
   resetRoundState,
 } from "../game/gameState";
 import { decideOpponentAction } from "../game/aiLogic";
+import { applyCardAbility } from "../game/cardEffects";
 
 export function useGameState() {
   const [gameState, setGameState] = useState(() => createInitialState());
@@ -100,23 +101,50 @@ export function useGameState() {
         return currentState;
       }
 
-      const newHand = currentState.player.hand.filter(
-        (c) => c.instanceId !== card.instanceId
-      );
+      let updatedState;
 
-      const newRows = {
-        ...currentState.player.rows,
-        [targetRow]: [...currentState.player.rows[targetRow], card],
-      };
+      if (card.ability) {
+        console.log(`Playing ${card.name} with ability: ${card.ability}`);
 
-      let updatedState = {
-        ...currentState,
-        player: {
-          ...currentState.player,
-          hand: newHand,
-          rows: newRows,
-        },
-      };
+        const newHand = currentState.player.hand.filter(
+          (c) => c.instanceId !== card.instanceId
+        );
+
+        const stateAfterHandRemoval = {
+          ...currentState,
+          player: {
+            ...currentState.player,
+            hand: newHand,
+          },
+        };
+
+        updatedState = applyCardAbility(
+          stateAfterHandRemoval,
+          card,
+          "player",
+          targetRow
+        );
+      } else {
+        console.log(`Playing ${card.name} (no ability)`);
+
+        const newHand = currentState.player.hand.filter(
+          (c) => c.instanceId !== card.instanceId
+        );
+
+        const newRows = {
+          ...currentState.player.rows,
+          [targetRow]: [...currentState.player.rows[targetRow], card],
+        };
+
+        updatedState = {
+          ...currentState,
+          player: {
+            ...currentState.player,
+            hand: newHand,
+            rows: newRows,
+          },
+        };
+      }
 
       const playerScore = calculateScore(
         updatedState.player.rows,
@@ -233,26 +261,53 @@ export function useGameState() {
         );
         isProcessingAI.current = false;
 
-        const newHand = currentState.opponent.hand.filter(
-          (c) => c.instanceId !== aiDecision.card.instanceId
-        );
+        let updatedState;
 
-        const newRows = {
-          ...currentState.opponent.rows,
-          [aiDecision.targetRow]: [
-            ...currentState.opponent.rows[aiDecision.targetRow],
+        if (aiDecision.card.ability) {
+          console.log(
+            `AI playing ${aiDecision.card.name} with ability: ${aiDecision.card.ability}`
+          );
+
+          const newHand = currentState.opponent.hand.filter(
+            (c) => c.instanceId !== aiDecision.card.instanceId
+          );
+
+          const stateAfterHandRemoval = {
+            ...currentState,
+            opponent: {
+              ...currentState.opponent,
+              hand: newHand,
+            },
+          };
+
+          updatedState = applyCardAbility(
+            stateAfterHandRemoval,
             aiDecision.card,
-          ],
-        };
+            "opponent",
+            aiDecision.targetRow
+          );
+        } else {
+          const newHand = currentState.opponent.hand.filter(
+            (c) => c.instanceId !== aiDecision.card.instanceId
+          );
 
-        let updatedState = {
-          ...currentState,
-          opponent: {
-            ...currentState.opponent,
-            hand: newHand,
-            rows: newRows,
-          },
-        };
+          const newRows = {
+            ...currentState.opponent.rows,
+            [aiDecision.targetRow]: [
+              ...currentState.opponent.rows[aiDecision.targetRow],
+              aiDecision.card,
+            ],
+          };
+
+          updatedState = {
+            ...currentState,
+            opponent: {
+              ...currentState.opponent,
+              hand: newHand,
+              rows: newRows,
+            },
+          };
+        }
 
         const playerScore = calculateScore(
           updatedState.player.rows,
@@ -287,26 +342,49 @@ export function useGameState() {
       if (aiDecision.action === "play_and_continue") {
         console.log(`AI Decision: PLAY ${aiDecision.card.name} and CONTINUE`);
 
-        const newHand = currentState.opponent.hand.filter(
-          (c) => c.instanceId !== aiDecision.card.instanceId
-        );
+        let updatedState;
 
-        const newRows = {
-          ...currentState.opponent.rows,
-          [aiDecision.targetRow]: [
-            ...currentState.opponent.rows[aiDecision.targetRow],
+        if (aiDecision.card.ability) {
+          const newHand = currentState.opponent.hand.filter(
+            (c) => c.instanceId !== aiDecision.card.instanceId
+          );
+
+          const stateAfterHandRemoval = {
+            ...currentState,
+            opponent: {
+              ...currentState.opponent,
+              hand: newHand,
+            },
+          };
+
+          updatedState = applyCardAbility(
+            stateAfterHandRemoval,
             aiDecision.card,
-          ],
-        };
+            "opponent",
+            aiDecision.targetRow
+          );
+        } else {
+          const newHand = currentState.opponent.hand.filter(
+            (c) => c.instanceId !== aiDecision.card.instanceId
+          );
 
-        let updatedState = {
-          ...currentState,
-          opponent: {
-            ...currentState.opponent,
-            hand: newHand,
-            rows: newRows,
-          },
-        };
+          const newRows = {
+            ...currentState.opponent.rows,
+            [aiDecision.targetRow]: [
+              ...currentState.opponent.rows[aiDecision.targetRow],
+              aiDecision.card,
+            ],
+          };
+
+          updatedState = {
+            ...currentState,
+            opponent: {
+              ...currentState.opponent,
+              hand: newHand,
+              rows: newRows,
+            },
+          };
+        }
 
         const playerScore = calculateScore(
           updatedState.player.rows,
@@ -348,39 +426,81 @@ export function useGameState() {
         }
 
         console.log("AI: Still losing, will play another card");
-
         setTimeout(() => {
           isProcessingAI.current = false;
-        }, 50);
+        }, 1000);
 
         return updatedState;
       }
 
-      if (aiDecision.action === "play_and_pass") {
-        console.log(`AI Decision: PLAY ${aiDecision.card.name} then PASS`);
-        isProcessingAI.current = false;
+      if (aiDecision.action === "play_and_continue") {
+        console.log(`AI Decision: PLAY ${aiDecision.card.name} and CONTINUE`);
 
-        const newHand = currentState.opponent.hand.filter(
-          (c) => c.instanceId !== aiDecision.card.instanceId
-        );
+        let updatedState;
 
-        const newRows = {
-          ...currentState.opponent.rows,
-          [aiDecision.targetRow]: [
-            ...currentState.opponent.rows[aiDecision.targetRow],
+        if (aiDecision.card.ability) {
+          console.log(
+            `[DEBUG] Opponent hand BEFORE removing card:`,
+            currentState.opponent.hand.length
+          );
+
+          const newHand = currentState.opponent.hand.filter(
+            (c) => c.instanceId !== aiDecision.card.instanceId
+          );
+
+          console.log(
+            `[DEBUG] Opponent hand AFTER removing card:`,
+            newHand.length
+          );
+
+          const stateAfterHandRemoval = {
+            ...currentState,
+            opponent: {
+              ...currentState.opponent,
+              hand: newHand,
+            },
+          };
+
+          console.log(
+            `[DEBUG] About to call applyCardAbility for ${aiDecision.card.ability}`
+          );
+          updatedState = applyCardAbility(
+            stateAfterHandRemoval,
             aiDecision.card,
-          ],
-        };
+            "opponent",
+            aiDecision.targetRow
+          );
+          console.log(
+            `[DEBUG] After applyCardAbility - opponent hand:`,
+            updatedState.opponent.hand.length
+          );
+          console.log(
+            `[DEBUG] After applyCardAbility - opponent ${aiDecision.targetRow} row:`,
+            updatedState.opponent.rows[aiDecision.targetRow].length
+          );
+        } else {
+          const newHand = currentState.opponent.hand.filter(
+            (c) => c.instanceId !== aiDecision.card.instanceId
+          );
 
-        let updatedState = {
-          ...currentState,
-          opponent: {
-            ...currentState.opponent,
-            hand: newHand,
-            rows: newRows,
-            hasPassed: true,
-          },
-        };
+          const newRows = {
+            ...currentState.opponent.rows,
+            [aiDecision.targetRow]: [
+              ...currentState.opponent.rows[aiDecision.targetRow],
+              aiDecision.card,
+            ],
+          };
+
+          updatedState = {
+            ...currentState,
+            opponent: {
+              ...currentState.opponent,
+              hand: newHand,
+              rows: newRows,
+              hasPassed: true,
+            },
+          };
+        }
 
         const playerScore = calculateScore(
           updatedState.player.rows,
@@ -422,7 +542,7 @@ export function useGameState() {
     ) {
       const timer = setTimeout(() => {
         playOpponentTurn();
-      }, 1000);
+      }, 1500);
 
       return () => clearTimeout(timer);
     }
@@ -430,6 +550,9 @@ export function useGameState() {
     gameState.currentTurn,
     gameState.gamePhase,
     gameState.opponent.hand.length,
+    gameState.opponent.rows.melee.length,
+    gameState.opponent.rows.ranged.length,
+    gameState.opponent.rows.siege.length,
     playOpponentTurn,
   ]);
 

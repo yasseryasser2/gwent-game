@@ -1,6 +1,21 @@
 import React from "react";
 import Card from "./Card";
+import { ROWS } from "../data/constants";
 
+/**
+ * Row component
+ *
+ * Represents a single row on the board (e.g., melee, ranged, siege).
+ * Handles score calculation based on card power, hero status,
+ * weather effects, and horn multipliers, and renders the row UI.
+ *
+ * @param {Object} props
+ * @param {string} props.rowType - Identifier for the row type
+ * @param {Array} props.cards - Array of card objects placed in this row
+ * @param {boolean} props.isPlayerRow - Whether this row belongs to the player
+ * @param {boolean} props.hasHorn - Whether a horn effect is active on this row
+ * @param {boolean} props.weatherActive - Whether a weather effect is active on this row
+ */
 export default function Row({
   rowType,
   cards,
@@ -8,27 +23,29 @@ export default function Row({
   hasHorn,
   weatherActive,
 }) {
+  /**
+   * Calculates the total score for the row.
+   * Hero cards are unaffected by weather and horn effects.
+   * Regular cards may be reduced by weather and doubled by a horn.
+   *
+   * @returns {number} Total calculated row score
+   */
   function calculateRowScore() {
-    let heroScore = 0; // Heroes are never affected
-    let regularScore = 0; // Regular units get buffs/debuffs
+    let heroScore = 0;
+    let regularScore = 0;
 
     cards.forEach((card) => {
       if (card.hero) {
-        // Heroes: base power only, no modifications
         heroScore += card.power;
       } else {
-        // Regular cards: affected by weather
         let cardPower = card.power;
-
         if (weatherActive) {
           cardPower = 1;
         }
-
         regularScore += cardPower;
       }
     });
 
-    // Horn only affects non-hero cards
     if (hasHorn) {
       regularScore = regularScore * 2;
     }
@@ -41,65 +58,82 @@ export default function Row({
   return (
     <div
       style={{
-        border: "2px solid #666",
-        backgroundColor: isPlayerRow ? "#1e3a1e" : "#3a1e1e",
-        padding: "15px",
+        border: "2px solid rgba(139, 115, 85, 0.5)",
+        backgroundColor: isPlayerRow
+          ? "rgba(30, 58, 30, 0.6)"
+          : "rgba(58, 30, 30, 0.6)",
+        padding: "10px",
         borderRadius: "8px",
-        marginBottom: "10px",
+        minHeight: "160px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "8px",
+        boxShadow: "inset 0 2px 8px rgba(0, 0, 0, 0.4)",
       }}
     >
-      {/* Header section */}
+      {}
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          color: "white",
-          fontWeight: "bold",
-          marginBottom: "10px",
-          fontSize: "16px",
+          paddingBottom: "6px",
+          borderBottom: "1px solid rgba(139, 115, 85, 0.3)",
         }}
       >
-        <span>{rowType.toUpperCase()} ROW</span>
+        <span
+          style={{
+            fontSize: "12px",
+            fontWeight: "bold",
+            color: "#ffd700",
+            letterSpacing: "1px",
+          }}
+        >
+          {rowType.toUpperCase()}
+        </span>
 
-        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          {/* Show horn icon if active */}
-          {hasHorn && <span style={{ fontSize: "20px" }}>🎺</span>}
-
-          {/* Show weather icon if active */}
-          {weatherActive && <span style={{ fontSize: "20px" }}>⛈️</span>}
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          {hasHorn && <span style={{ fontSize: "16px" }}>🎺</span>}
+          {weatherActive && <span style={{ fontSize: "16px" }}>⛈️</span>}
 
           <span
             style={{
-              fontSize: "20px",
-              backgroundColor: "rgba(0,0,0,0.5)",
-              padding: "5px 15px",
-              borderRadius: "5px",
+              fontSize: "16px",
+              fontWeight: "bold",
+              color: "#ffd700",
+              background: "rgba(0, 0, 0, 0.5)",
+              padding: "4px 10px",
+              borderRadius: "6px",
+              minWidth: "40px",
+              textAlign: "center",
             }}
           >
-            Score: {totalScore}
+            {totalScore}
           </span>
         </div>
       </div>
 
-      {/* Cards section */}
+      {}
       <div
         style={{
           display: "flex",
-          gap: "10px",
-          flexWrap: "wrap",
-          minHeight: "100px",
+          gap: "8px",
+          flexWrap: "nowrap",
+          overflowX: "auto",
+          overflowY: "visible",
           alignItems: "center",
-          backgroundColor: "rgba(0,0,0,0.2)",
-          padding: "10px",
-          borderRadius: "5px",
+          minHeight: "60px",
+          padding: "5px",
+          scrollbarWidth: "thin",
+          scrollbarColor: "rgba(139, 115, 85, 0.6) rgba(0, 0, 0, 0.3)",
         }}
       >
         {cards.length === 0 ? (
           <div
             style={{
-              color: "#888",
+              color: "#666",
               fontStyle: "italic",
+              fontSize: "12px",
               margin: "auto",
             }}
           >
@@ -107,13 +141,14 @@ export default function Row({
           </div>
         ) : (
           cards.map((card, index) => (
-            <Card
-              key={card.instanceId || index}
-              card={card}
-              onClick={() => {}}
-              isPlayable={false}
-              size="small"
-            />
+            <div key={card.instanceId || index} style={{ flexShrink: 0 }}>
+              <Card
+                card={card}
+                onClick={() => {}}
+                isPlayable={false}
+                size="small"
+              />
+            </div>
           ))
         )}
       </div>
